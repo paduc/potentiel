@@ -13,10 +13,12 @@ const getUserDashboardPage = async (request: HttpRequest) => {
 
   const projects = await listUserProjects({ userId: request.user.id })
 
+  console.log('getUserDashboard page returns ' + projects.length + ' projects')
+
   return Success(
     UserListProjectsPage({
       request,
-      projects
+      projects,
     })
   )
 }
