@@ -29,6 +29,10 @@ import {
   getUserRequestsPage,
   getSendCopyOfCandidateNotification,
   getCandidateCertificate,
+  getForgottenPasswordPage,
+  postRetrievePassword,
+  getResetPasswordPage,
+  postResetPassword,
 } from './controllers'
 
 import { resetDbForTests } from './__tests__/integration/resetDbForTests'
@@ -99,6 +103,23 @@ export async function makeServer(port: number = 3000) {
     router.get(ROUTES.LOGOUT_ACTION, logoutMiddleware, (req, res) => {
       res.redirect('/')
     })
+
+    router.get(
+      ROUTES.FORGOTTEN_PASSWORD,
+      makeExpressCallback(getForgottenPasswordPage)
+    )
+    router.post(
+      ROUTES.FORGOTTEN_PASSWORD_ACTION,
+      makeExpressCallback(postRetrievePassword)
+    )
+    router.get(
+      ROUTES.RESET_PASSWORD_LINK(),
+      makeExpressCallback(getResetPasswordPage)
+    )
+    router.post(
+      ROUTES.RESET_PASSWORD_ACTION,
+      makeExpressCallback(postResetPassword)
+    )
 
     router.get(
       ROUTES.ADMIN_DASHBOARD,

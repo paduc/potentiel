@@ -9,21 +9,19 @@ interface Props {
 }
 
 /* Pure component */
-export default function LoginPage({ request }: Props) {
-  const { error, success, email } = request.query || {}
+export default function ForgottenPasswordPage({ request }: Props) {
+  const { error, success } = request.query || {}
   return (
     <main role="main">
       <section className="section section-grey">
         <div className="container">
-          <form action={routes.LOGIN_ACTION} method="post" name="form">
-            <h3 id="login">Je m'identifie</h3>
-            {!!error ? (
-              <div className="notification error">
-                Identifiant ou mot de passe erroné.
-              </div>
-            ) : (
-              ''
-            )}
+          <form
+            action={routes.FORGOTTEN_PASSWORD_ACTION}
+            method="post"
+            name="form"
+          >
+            <h3 id="login">J'ai oublié mon mot de passe</h3>
+            {error ? <div className="notification error">{error}</div> : ''}
             {success ? (
               <div className="notification success">{success}</div>
             ) : (
@@ -35,15 +33,7 @@ export default function LoginPage({ request }: Props) {
                 type="email"
                 name="email"
                 id="email"
-                {...dataId('login-email')}
-                defaultValue={email || ''}
-              />
-              <label htmlFor="password">Mot de passe</label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                {...dataId('login-password')}
+                {...dataId('email-field')}
               />
               <button
                 className="button"
@@ -52,11 +42,8 @@ export default function LoginPage({ request }: Props) {
                 id="submit"
                 {...dataId('submit-button')}
               >
-                Je m'identifie
+                Je demande à renouveller mon mot de passe
               </button>
-              <a href={routes.FORGOTTEN_PASSWORD}>
-                J'ai oublié mon mot de passe
-              </a>
             </div>
           </form>
         </div>

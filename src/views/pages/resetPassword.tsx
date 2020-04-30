@@ -9,41 +9,40 @@ interface Props {
 }
 
 /* Pure component */
-export default function LoginPage({ request }: Props) {
-  const { error, success, email } = request.query || {}
+export default function ResetPasswordPage({ request }: Props) {
+  const { error, success, resetCode } = request.query || {}
   return (
     <main role="main">
       <section className="section section-grey">
         <div className="container">
-          <form action={routes.LOGIN_ACTION} method="post" name="form">
-            <h3 id="login">Je m'identifie</h3>
-            {!!error ? (
-              <div className="notification error">
-                Identifiant ou mot de passe erroné.
-              </div>
-            ) : (
-              ''
-            )}
+          <form action={routes.RESET_PASSWORD_ACTION} method="post" name="form">
+            <h3>Changer mon mot de passe</h3>
+            {error ? <div className="notification error">{error}</div> : ''}
             {success ? (
               <div className="notification success">{success}</div>
             ) : (
               ''
             )}
             <div className="form__group">
-              <label htmlFor="email">Courrier électronique</label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                {...dataId('login-email')}
-                defaultValue={email || ''}
-              />
-              <label htmlFor="password">Mot de passe</label>
+              <label htmlFor="password">Nouveau mot de passe</label>
               <input
                 type="password"
                 name="password"
                 id="password"
-                {...dataId('login-password')}
+                {...dataId('password-field')}
+              />
+              <label htmlFor="confirmPassword">Confirmer mot de passe</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                {...dataId('confirm-password-field')}
+              />
+              <input
+                type="hidden"
+                name="resetCode"
+                id="resetCode"
+                value={resetCode || ''}
               />
               <button
                 className="button"
@@ -52,11 +51,8 @@ export default function LoginPage({ request }: Props) {
                 id="submit"
                 {...dataId('submit-button')}
               >
-                Je m'identifie
+                Changer mon mot de passe
               </button>
-              <a href={routes.FORGOTTEN_PASSWORD}>
-                J'ai oublié mon mot de passe
-              </a>
             </div>
           </form>
         </div>
