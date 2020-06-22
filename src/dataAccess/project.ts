@@ -1,4 +1,4 @@
-import { Project, User } from '../entities'
+import { Project, User, AppelOffre, Famille, Periode } from '../entities'
 import { OptionAsync, ResultAsync, Pagination, PaginatedList } from '../types'
 
 export type ProjectRepo = {
@@ -12,6 +12,13 @@ export type ProjectRepo = {
     query: Record<string, any>,
     pagination: Pagination
   ): Promise<PaginatedList<Project>>
+  findExistingAppelsOffres(): Promise<Array<AppelOffre['id']>>
+  findExistingPeriodesForAppelOffre(
+    appelOffreId: AppelOffre['id']
+  ): Promise<Array<Periode['id']>>
+  findExistingFamillesForAppelOffre(
+    appelOffreId: AppelOffre['id']
+  ): Promise<Array<Famille['id']>>
   findByUser: (
     userId: User['id'],
     excludeUnnotified?: boolean

@@ -1,6 +1,13 @@
 import { DataTypes, Op, Transaction } from 'sequelize'
 import { ProjectRepo } from '../'
-import { Project, User, makeProject } from '../../entities'
+import {
+  Project,
+  User,
+  makeProject,
+  AppelOffre,
+  Periode,
+  Famille,
+} from '../../entities'
 import { mapExceptError, mapIfOk } from '../../helpers/results'
 import { paginate, pageCount, makePaginatedList } from '../../helpers/paginate'
 import {
@@ -17,6 +24,7 @@ import CONFIG from '../config'
 import isDbReady from './helpers/isDbReady'
 import _ from 'lodash'
 import { QueryTypes } from 'sequelize'
+import { Sequelize } from 'sequelize'
 
 // Override these to apply serialization/deserialization on inputs/outputs
 const deserialize = (item) => ({
@@ -247,6 +255,9 @@ export default function makeProjectRepo({
     save,
     remove,
     getUsers,
+    findExistingAppelsOffres,
+    findExistingFamillesForAppelOffre,
+    findExistingPeriodesForAppelOffre,
   })
 
   async function addAppelOffreToProject(project: Project): Promise<Project> {
@@ -549,6 +560,51 @@ export default function makeProjectRepo({
     }
 
     return (await projectInstance.getUsers()).map((item) => item.get())
+  }
+
+  async function findExistingAppelsOffres(): Promise<Array<AppelOffre['id']>> {
+    await _isDbReady
+
+    const appelsOffres = await ProjectModel.findAll({
+      attributes: [
+        [
+          Sequelize.fn('DISTINCT', Sequelize.col('appelOffreId')),
+          'appelOffreId',
+        ],
+      ],
+    })
+
+    return appelsOffres.map((item) => item.get().appelOffreId)
+  }
+
+  async function findExistingPeriodesForAppelOffre(
+    appelOffreId: AppelOffre['id']
+  ): Promise<Array<Periode['id']>> {
+    const periodes = await ProjectModel.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('periodeId')), 'periodeId'],
+      ],
+      where: {
+        appelOffreId,
+      },
+    })
+
+    return periodes.map((item) => item.get().periodeId)
+  }
+
+  async function findExistingFamillesForAppelOffre(
+    appelOffreId: AppelOffre['id']
+  ): Promise<Array<Famille['id']>> {
+    const familles = await ProjectModel.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('familleId')), 'familleId'],
+      ],
+      where: {
+        appelOffreId,
+      },
+    })
+
+    return familles.map((item) => item.get().familleId)
   }
 }
 
