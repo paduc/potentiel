@@ -261,7 +261,12 @@ export async function makeServer(port: number = 3000) {
     router.post(
       ROUTES.DEPOSER_GARANTIES_FINANCIERES_ACTION,
       ensureLoggedIn(),
-      upload.single('file'),
+      function (req, res) {
+        console.log('Calling upload for GF')
+        upload.single('file')(req, res, function (err) {
+          console.log('Error while uploading GF', err)
+        })
+      },
       makeExpressCallback(postGarantiesFinancieres)
     )
     router.get(
