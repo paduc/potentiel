@@ -1,27 +1,21 @@
-import _ from 'lodash'
 import moment from 'moment'
+import { EventBus } from '../core/utils'
 import {
-  CredentialsRepo,
+  AppelOffreRepo,
   ProjectAdmissionKeyRepo,
   ProjectRepo,
-  UserRepo,
-  AppelOffreRepo,
 } from '../dataAccess'
 import {
-  makeProjectAdmissionKey,
   AppelOffre,
-  Periode,
-  Project,
-  User,
-  ProjectAdmissionKey,
   applyProjectUpdate,
-  NotificationProps,
+  makeProjectAdmissionKey,
+  Periode,
+  User,
 } from '../entities'
-import { ErrorResult, Ok, ResultAsync } from '../types'
-import routes from '../routes'
-import { EventBus } from '../core/utils'
-import { ProjectNotified } from '../modules/project/events/ProjectNotified'
 import { NotificationService } from '../modules/notification'
+import { ProjectNotified } from '../modules/project/events/ProjectNotified'
+import routes from '../routes'
+import { ErrorResult, Ok, ResultAsync } from '../types'
 
 interface MakeUseCaseProps {
   eventBus: EventBus
@@ -158,7 +152,7 @@ export default function makeSendAllCandidateNotifications({
                   return
                 }
 
-                eventBus.publish(new ProjectNotified({ projectId: project.id }))
+                // eventBus.publish(new ProjectNotified({ projectId: project.id }))
               }
             })
           )

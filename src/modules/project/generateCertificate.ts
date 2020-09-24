@@ -35,83 +35,89 @@ const wait = (time: number) =>
     () => new OtherError('blah')
   )
 
-export class GenerateCertificate {
-  constructor(
-    private fileService: FileService,
-    private findProjectById: ProjectRepo['findById'],
-    private saveProject: ProjectRepo['save'],
-    private buildCertificate: (
-      template: CertificateTemplate,
-      project: Project
-    ) => ResultAsync<NodeJS.ReadableStream, Error>
-  ) {}
+// Possible errors:
+// - Failing to get project information (from findByProjectId)
+// - Failing to generate PDF (from buildCertificate)
+// - Failing to save PDF file (from fileService.save)
+export type GenerateCertificate = (
+  projectId: Project['id']
+) => ResultAsync<Project['certificateFileId'], DomainError>
 
-  public execute(projectId: Project['id']): ResultAsync<null, DomainError> {
-    // Get project information
+interface GenerateCertificateDeps {
+  fileService: FileService
+  findProjectById: ProjectRepo['findById']
+  saveProject: ProjectRepo['save']
+  buildCertificate: (
+    template: CertificateTemplate,
+    project: Project
+  ) => ResultAsync<NodeJS.ReadableStream, Error>
+}
+export const makeGenerateCertificate = (
+  deps: GenerateCertificateDeps
+): GenerateCertificate => (projectId: Project['id']) => {
+  let project: Project
+  let file: File
+  return ResultAsync.fromPromise(
+    deps.findProjectById(projectId),
+    () => new InfraNotAvailableError()
+  )
+    .andThen((_project: Project | undefined) => {
+      if (!_project) {
+        return err(new EntityNotFoundError())
+      }
 
-    let project: Project
-    let file: File
-    return ResultAsync.fromPromise(
-      this.findProjectById(projectId),
-      () => new InfraNotAvailableError()
-    )
-      .andThen((_project: Project | undefined) => {
-        if (!_project) {
-          return err(new EntityNotFoundError())
-        }
+      project = _project
 
-        project = _project
+      // Generate PDF for Certificate
 
-        // Generate PDF for Certificate
+      const certificateTemplate = getCertificateIfProjectEligible(project)
+      // Make sure the project can have a certificate (notifiedOn, classe, periode)
+      if (!certificateTemplate) {
+        return err(new ProjectNotEligibleForCertificateError())
+      }
 
-        const certificateTemplate = getCertificateIfProjectEligible(project)
-        // Make sure the project can have a certificate (notifiedOn, classe, periode)
-        if (!certificateTemplate) {
-          return err(new ProjectNotEligibleForCertificateError())
-        }
+      return deps.buildCertificate(certificateTemplate, project)
+    })
+    .andThen((fileStream: NodeJS.ReadableStream) => {
+      // Save PDF File to storage
 
-        return this.buildCertificate(certificateTemplate, project)
-      })
-      .andThen((fileStream: NodeJS.ReadableStream) => {
-        // Save PDF File to storage
-
-        return File.create({
-          filename: makeCertificateFilename(project),
-          forProject: projectId,
-          createdBy: '',
-          designation: 'attestation-designation',
-        }).asyncAndThen((_file: File) => {
-          file = _file
-          return this.fileService.save(file, {
-            path: makeProjectFilePath(projectId, file.filename).filepath,
-            stream: fileStream,
-          })
+      return File.create({
+        filename: makeCertificateFilename(project),
+        forProject: projectId,
+        createdBy: '',
+        designation: 'attestation-designation',
+      }).asyncAndThen((_file: File) => {
+        file = _file
+        return deps.fileService.save(file, {
+          path: makeProjectFilePath(projectId, file.filename).filepath,
+          stream: fileStream,
         })
       })
-      .andThen(() => {
-        // Add the certificate file to the project
+    })
+    .map(() => file.id.toString())
+  // .andThen(() => {
+  //   // Add the certificate file to the project
 
-        const updatedProject = applyProjectUpdate({
-          project,
-          update: { certificateFileId: file.id.toString() },
-          context: { type: 'certificate-generation', userId: '' },
-        })
+  //   const updatedProject = applyProjectUpdate({
+  //     project,
+  //     update: { certificateFileId: file.id.toString() },
+  //     context: { type: 'certificate-generation', userId: '' },
+  //   })
 
-        if (!updatedProject) {
-          return errAsync(
-            new OtherError(
-              'Impossible de mettre à jour le projet avec son certificat'
-            )
-          )
-        }
+  //   if (!updatedProject) {
+  //     return errAsync(
+  //       new OtherError(
+  //         'Impossible de mettre à jour le projet avec son certificat'
+  //       )
+  //     )
+  //   }
 
-        return fromOldResultAsync(this.saveProject(updatedProject)).mapErr(
-          (e: Error) =>
-            new OtherError(
-              'Impossible de mettre à jour le projet avec son certificat: ' +
-                e.message
-            )
-        )
-      })
-  }
+  //   return fromOldResultAsync(deps.saveProject(updatedProject)).mapErr(
+  //     (e: Error) =>
+  //       new OtherError(
+  //         'Impossible de mettre à jour le projet avec son certificat: ' +
+  //           e.message
+  //       )
+  //   )
+  // })
 }

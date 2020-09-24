@@ -1,22 +1,30 @@
 import { FileService, FileStorageService } from './modules/file'
 import { ShouldUserAccessProject } from './modules/authorization'
-import { userRepo, projectRepo } from './dataAccess'
+import { userRepo, projectRepo, projectAdmissionKeyRepo } from './dataAccess'
+import { appelOffreRepo } from './dataAccess/inMemory'
 import {
   fileRepo,
   notificationRepo,
   getFailedNotifications,
+  getUnnotifiedProjectsForPeriode,
 } from './infra/sequelize'
 import {
   LocalFileStorageService,
   ObjectStorageFileStorageService,
 } from './infra/file'
-import { EventBus } from './core/utils'
-import { InMemoryEventBus } from './infra/eventbus'
+import { InMemoryEventStore } from './infra/inMemory'
 import { fakeSendEmail } from './infra/mail/fakeEmailService'
 import { sendEmailFromMailjet } from './infra/mail/mailjet'
 
-import { ProjectHandlers } from './modules/project/eventHandlers'
-import { GenerateCertificate } from './modules/project/generateCertificate'
+import {
+  handlePeriodeNotified,
+  handleProjectCertificateGenerated,
+  handleProjectNotified,
+} from './modules/project/eventHandlers'
+import {
+  GenerateCertificate,
+  makeGenerateCertificate,
+} from './modules/project/generateCertificate'
 import { buildCertificate } from './views/certificates'
 import { makeNotificationService, SendEmail } from './modules/notification'
 
@@ -112,13 +120,19 @@ export const {
 // EVENT HANDLERS
 //
 
-export const eventBus: EventBus = new InMemoryEventBus()
-new ProjectHandlers(
-  eventBus,
-  new GenerateCertificate(
-    fileService,
-    projectRepo.findById,
-    projectRepo.save,
-    buildCertificate
-  )
-)
+const eventStore = new InMemoryEventStore()
+
+const generateCertificate = makeGenerateCertificate({
+  fileService,
+  findProjectById: projectRepo.findById,
+  saveProject: projectRepo.save,
+  buildCertificate,
+})
+handlePeriodeNotified(eventStore, getUnnotifiedProjectsForPeriode)
+handleProjectCertificateGenerated(eventStore, {
+  sendNotification,
+  findProjectById: projectRepo.findById,
+  saveProjectAdmissionKey: projectAdmissionKeyRepo.save,
+  getPeriodeTitle: appelOffreRepo.getPeriodeTitle,
+})
+handleProjectNotified(eventStore, generateCertificate)

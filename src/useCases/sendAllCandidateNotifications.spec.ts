@@ -200,7 +200,7 @@ describe('sendAllCandidateNotifications use-case', () => {
         expect(
           publishedEvents.find(
             (item) =>
-              item.type === 'ProjectNotified' &&
+              item.getType() === 'ProjectNotified' &&
               item.payload.projectId === fakeProject1.id
           )
         ).toBeDefined()
@@ -208,7 +208,7 @@ describe('sendAllCandidateNotifications use-case', () => {
         expect(
           publishedEvents.find(
             (item) =>
-              item.type === 'ProjectNotified' &&
+              item.getType() === 'ProjectNotified' &&
               item.payload.projectId === fakeProject2.id
           )
         ).toBeDefined()
