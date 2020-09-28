@@ -149,7 +149,7 @@ describe('sendAllCandidateNotifications use-case', () => {
         })
       })
 
-      it('should update each unnotified project from the periode as having been notified and set the garanties financieres due date if the famille requires them', async () => {
+      it('should update each unnotified project from the periode as having been notified and set the garanties financieres and dcr due dates if the famille requires them', async () => {
         expect(saveProject).toHaveBeenCalledTimes(2)
 
         const fakeProject1Update = saveProject.mock.calls
@@ -169,6 +169,7 @@ describe('sendAllCandidateNotifications use-case', () => {
             .add(2, 'months')
             .toDate()
             .getTime(),
+          dcrDueOn: moment(notifiedOn).add(2, 'months').toDate().getTime(),
         })
 
         const fakeProject2Update = saveProject.mock.calls
@@ -182,6 +183,7 @@ describe('sendAllCandidateNotifications use-case', () => {
         expect(notificationEvent2.after).toEqual({
           notifiedOn,
           // This project does not require GF
+          dcrDueOn: moment(notifiedOn).add(2, 'months').toDate().getTime(),
         })
       })
     })

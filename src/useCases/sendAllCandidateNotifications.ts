@@ -132,6 +132,11 @@ export default function makeSendAllCandidateNotifications({
                   .getTime()
               }
 
+              update.dcrDueOn = moment(notifiedOn)
+                .add(2, 'months')
+                .toDate()
+                .getTime()
+
               const updatedProject = applyProjectUpdate({
                 project,
                 update,
