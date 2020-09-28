@@ -48,6 +48,12 @@ export default function makeUserRepo({ sequelize }): UserRepo {
   })
 
   const UserDrealModel = sequelize.define('userDreal', {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER,
+    },
     dreal: {
       type: DataTypes.STRING,
       allowNull: false,

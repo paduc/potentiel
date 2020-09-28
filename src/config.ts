@@ -7,6 +7,7 @@ import {
   notificationRepo,
   getFailedNotifications,
   getUnnotifiedProjectsForPeriode,
+  initProjections,
 } from './infra/sequelize'
 import {
   LocalFileStorageService,
@@ -20,6 +21,7 @@ import {
   handlePeriodeNotified,
   handleProjectCertificateGenerated,
   handleProjectNotified,
+  handleCandidateNotifiedForPeriode,
 } from './modules/project/eventHandlers'
 import {
   GenerateCertificate,
@@ -130,9 +132,20 @@ const generateCertificate = makeGenerateCertificate({
 })
 handlePeriodeNotified(eventStore, getUnnotifiedProjectsForPeriode)
 handleProjectCertificateGenerated(eventStore, {
-  sendNotification,
   findProjectById: projectRepo.findById,
+})
+handleProjectNotified(eventStore, {
+  generateCertificate,
+  getFamille: appelOffreRepo.getFamille,
+})
+handleCandidateNotifiedForPeriode(eventStore, {
+  sendNotification,
   saveProjectAdmissionKey: projectAdmissionKeyRepo.save,
   getPeriodeTitle: appelOffreRepo.getPeriodeTitle,
 })
-handleProjectNotified(eventStore, generateCertificate)
+
+//
+// Projections
+//
+
+initProjections(eventStore)
