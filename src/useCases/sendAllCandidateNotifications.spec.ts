@@ -165,7 +165,7 @@ describe('sendAllCandidateNotifications use-case', () => {
         expect(notificationEvent1.after).toEqual({
           notifiedOn,
           // This project requires GF
-          garantiesFinancieresDueDate: moment(notifiedOn)
+          garantiesFinancieresDueOn: moment(notifiedOn)
             .add(2, 'months')
             .toDate()
             .getTime(),

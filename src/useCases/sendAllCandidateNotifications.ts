@@ -126,7 +126,7 @@ export default function makeSendAllCandidateNotifications({
               const update: any = { notifiedOn }
 
               if (project.famille?.garantieFinanciereEnMois) {
-                update.garantiesFinancieresDueDate = moment(notifiedOn)
+                update.garantiesFinancieresDueOn = moment(notifiedOn)
                   .add(2, 'months')
                   .toDate()
                   .getTime()
