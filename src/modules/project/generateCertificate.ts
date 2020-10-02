@@ -40,7 +40,8 @@ const wait = (time: number) =>
 // - Failing to generate PDF (from buildCertificate)
 // - Failing to save PDF file (from fileService.save)
 export type GenerateCertificate = (
-  projectId: Project['id']
+  projectId: Project['id'],
+  notifiedOn?: Project['notifiedOn']
 ) => ResultAsync<Project['certificateFileId'], DomainError>
 
 interface GenerateCertificateDeps {
@@ -54,7 +55,10 @@ interface GenerateCertificateDeps {
 }
 export const makeGenerateCertificate = (
   deps: GenerateCertificateDeps
-): GenerateCertificate => (projectId: Project['id']) => {
+): GenerateCertificate => (
+  projectId: Project['id'],
+  notifiedOn?: Project['notifiedOn']
+) => {
   let project: Project
   let file: File
   return ResultAsync.fromPromise(
@@ -68,9 +72,14 @@ export const makeGenerateCertificate = (
 
       project = _project
 
+      if (notifiedOn) project.notifiedOn = notifiedOn
+
       // Generate PDF for Certificate
 
-      const certificateTemplate = getCertificateIfProjectEligible(project)
+      const certificateTemplate = getCertificateIfProjectEligible(
+        project,
+        !!notifiedOn
+      )
       // Make sure the project can have a certificate (notifiedOn, classe, periode)
       if (!certificateTemplate) {
         return err(new ProjectNotEligibleForCertificateError())
@@ -95,29 +104,4 @@ export const makeGenerateCertificate = (
       })
     })
     .map(() => file.id.toString())
-  // .andThen(() => {
-  //   // Add the certificate file to the project
-
-  //   const updatedProject = applyProjectUpdate({
-  //     project,
-  //     update: { certificateFileId: file.id.toString() },
-  //     context: { type: 'certificate-generation', userId: '' },
-  //   })
-
-  //   if (!updatedProject) {
-  //     return errAsync(
-  //       new OtherError(
-  //         'Impossible de mettre à jour le projet avec son certificat'
-  //       )
-  //     )
-  //   }
-
-  //   return fromOldResultAsync(deps.saveProject(updatedProject)).mapErr(
-  //     (e: Error) =>
-  //       new OtherError(
-  //         'Impossible de mettre à jour le projet avec son certificat: ' +
-  //           e.message
-  //       )
-  //   )
-  // })
 }

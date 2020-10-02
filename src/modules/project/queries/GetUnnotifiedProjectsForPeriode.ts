@@ -4,6 +4,7 @@ import { InfraNotAvailableError } from '../../shared'
 
 export interface UnnotifiedProjectDTO {
   projectId: Project['id']
+  familleId: Project['familleId']
   candidateEmail: Project['email']
 }
 

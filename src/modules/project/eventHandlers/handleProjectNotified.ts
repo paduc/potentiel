@@ -8,7 +8,10 @@ import {
 } from '../events'
 import { ProjectCertificateGenerated } from '../events/ProjectCertificateGenerated'
 import { ProjectCertificateGenerationFailed } from '../events/ProjectCertificateGenerationFailed'
-import { GenerateCertificate } from '../generateCertificate'
+import {
+  GenerateCertificate,
+  ProjectNotEligibleForCertificateError,
+} from '../generateCertificate'
 
 export const handleProjectNotified = (
   eventStore: EventStore,
@@ -64,8 +67,14 @@ export const handleProjectNotified = (
     let retries = 3
     let certificateFileId = ''
     while (retries-- > 0) {
-      const result = await deps.generateCertificate(projectId)
+      const result = await deps.generateCertificate(projectId, notifiedOn)
       if (result.isErr()) {
+        if (result.error instanceof ProjectNotEligibleForCertificateError) {
+          console.log(
+            'handleProjectNotified generateCertificated failed because project is not eligible for Certificate'
+          )
+          break
+        }
         console.log(
           'handleProjectNotified generateCertificated failed' +
             (retries > 0 ? ', retrying' : ' for the 3rd time, aborting.'),
@@ -73,7 +82,7 @@ export const handleProjectNotified = (
         )
 
         if (retries === 0) {
-          eventStore.publish(
+          await eventStore.publish(
             new ProjectCertificateGenerationFailed({
               payload: {
                 projectId,
@@ -87,13 +96,14 @@ export const handleProjectNotified = (
           )
         }
       } else {
+        console.log('handleProjectNotified generateCertificated succeeded')
         certificateFileId = result.value
         break
       }
     }
 
     if (retries >= 0 && certificateFileId) {
-      eventStore.publish(
+      await eventStore.publish(
         new ProjectCertificateGenerated({
           payload: {
             projectId,

@@ -15,6 +15,7 @@ describe('handlePeriodeNotified', () => {
         ['project1', 'project2'].map((projectId) => ({
           projectId,
           candidateEmail: 'email',
+          familleId: 'famille',
         }))
       )
   )
@@ -22,6 +23,7 @@ describe('handlePeriodeNotified', () => {
   const caughtProjectNotifiedEvents: ProjectNotified[] = []
   const fakePayload = {
     periodeId: 'periode1',
+    familleId: 'famille',
     appelOffreId: 'appelOffre1',
     notifiedOn: 1,
   }

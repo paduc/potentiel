@@ -136,7 +136,7 @@ export const handleProjectCertificateGenerated = (
       // TODO: replace this with a narrower query (ex: getCandidateNameByProject)
       const project = await deps.findProjectById(projectId)
 
-      await publish(
+      publish(
         new CandidateNotifiedForPeriode({
           payload: {
             periodeId,
@@ -148,6 +148,6 @@ export const handleProjectCertificateGenerated = (
         })
       )
     })
-    console.log('ending transaction ', transactionId)
+    // console.log('ending transaction ', transactionId)
   }
 }

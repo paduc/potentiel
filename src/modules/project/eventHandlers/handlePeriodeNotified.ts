@@ -33,12 +33,13 @@ export const handlePeriodeNotified = (
         unnotifiedProjectIdsResult.value
       )
       unnotifiedProjectIdsResult.value.forEach(
-        ({ projectId, candidateEmail }) =>
+        ({ projectId, candidateEmail, familleId }) =>
           publish(
             new ProjectNotified({
               payload: {
                 projectId,
                 periodeId,
+                familleId,
                 appelOffreId,
                 candidateEmail,
                 notifiedOn,

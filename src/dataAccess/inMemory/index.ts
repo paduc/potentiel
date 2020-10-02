@@ -288,7 +288,7 @@ const projectAdmissionKeyRepo: ProjectAdmissionKeyRepo = {
   save: async (item: ProjectAdmissionKey) => {
     projectAdmissionKeysById[item.id] = item
 
-    return Ok(item)
+    return Ok(null)
   },
 }
 

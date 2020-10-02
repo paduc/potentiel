@@ -32,6 +32,10 @@ import {
   ProjectNotifiedPayload,
 } from '../../../modules/project/events'
 
+function isNotNullOrUndefined<T>(input: null | undefined | T): input is T {
+  return input != null
+}
+
 export class SequelizeEventStore extends BaseEventStore {
   private EventStoreModel
   constructor(models) {
@@ -76,9 +80,7 @@ export class SequelizeEventStore extends BaseEventStore {
           : events
       })
       .map((events: any[]) =>
-        events
-          .map(this.fromPersistance)
-          .filter((item): item is StoredEvent => !!item)
+        events.map(this.fromPersistance).filter(isNotNullOrUndefined)
       )
   }
 
@@ -94,7 +96,7 @@ export class SequelizeEventStore extends BaseEventStore {
     }
   }
 
-  private fromPersistance(eventRaw: any) {
+  private fromPersistance(eventRaw: any): StoredEvent | null {
     switch (eventRaw.type) {
       case ProjectNotified.type:
         return new ProjectNotified({

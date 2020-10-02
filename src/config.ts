@@ -122,7 +122,7 @@ export const {
 // EVENT HANDLERS
 //
 
-const eventStore = new InMemoryEventStore()
+export const eventStore = new InMemoryEventStore()
 
 const generateCertificate = makeGenerateCertificate({
   fileService,

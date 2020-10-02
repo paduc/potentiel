@@ -14,6 +14,7 @@ import {
   ProjectNotified,
 } from '../events'
 import { handleProjectCertificateGenerated } from './'
+import waitForExpect from 'wait-for-expect'
 
 describe('handleProjectCertificateGenerated', () => {
   const project = UnwrapForTest(
@@ -31,6 +32,7 @@ describe('handleProjectCertificateGenerated', () => {
 
     const fakePayload = {
       periodeId: 'periode1',
+      familleId: 'famille1',
       appelOffreId: 'appelOffre1',
       candidateEmail: 'email1@test.test',
       notifiedOn: 0,
@@ -38,10 +40,9 @@ describe('handleProjectCertificateGenerated', () => {
 
     let candidateNotifiedEvent: StoredEvent | undefined = undefined
 
-    beforeAll(async (done) => {
+    beforeAll(async () => {
       eventStore.subscribe(CandidateNotifiedForPeriode.type, (event) => {
         candidateNotifiedEvent = event
-        done()
       })
 
       handleProjectCertificateGenerated(eventStore, { findProjectById })
@@ -92,6 +93,10 @@ describe('handleProjectCertificateGenerated', () => {
           requestId: 'request1',
         })
       )
+
+      await waitForExpect(() => {
+        expect(candidateNotifiedEvent).toBeDefined()
+      })
     })
 
     it('should trigger CandidateNotifiedForPeriode', () => {
@@ -102,7 +107,9 @@ describe('handleProjectCertificateGenerated', () => {
         CandidateNotifiedForPeriode.type
       )
       expect(candidateNotifiedEvent.payload).toEqual({
-        ...fakePayload,
+        candidateEmail: fakePayload.candidateEmail,
+        periodeId: fakePayload.periodeId,
+        appelOffreId: fakePayload.appelOffreId,
         candidateName: 'representant1',
       })
       expect(candidateNotifiedEvent.requestId).toEqual('request1')
@@ -114,6 +121,7 @@ describe('handleProjectCertificateGenerated', () => {
 
     const fakePayload = {
       periodeId: 'periode1',
+      familleId: 'famille1',
       appelOffreId: 'appelOffre1',
       candidateEmail: 'email1@test.test',
       notifiedOn: 0,
@@ -123,7 +131,7 @@ describe('handleProjectCertificateGenerated', () => {
       (event: CandidateNotifiedForPeriode) => null
     )
 
-    beforeAll(() => {
+    beforeAll(async () => {
       eventStore.subscribe(
         CandidateNotifiedForPeriode.type,
         fakeCandidateNotifedForPeriodeHandler
@@ -143,7 +151,7 @@ describe('handleProjectCertificateGenerated', () => {
         })
       )
       // project1 has a successfully generated certificate
-      eventStore.publish(
+      await eventStore.publish(
         new ProjectCertificateGenerated({
           payload: {
             ...fakePayload,
