@@ -84,7 +84,7 @@ export abstract class BaseEventStore implements EventStore {
     eventType: T['type'],
     callback: (event: T) => any
   ) {
-    console.log('SequelizeEventStore subscription to', eventType)
+    // console.log('SequelizeEventStore subscription to', eventType)
 
     this.eventEmitter.on(eventType, callback)
   }
@@ -100,11 +100,11 @@ export abstract class BaseEventStore implements EventStore {
 
       const callbackResult = await fn({
         loadHistory: (filters) => {
-          console.log('SequelizeEventStore loadHistory inside transaction')
+          // console.log('SequelizeEventStore loadHistory inside transaction')
           return this.loadHistory(filters)
         },
         publish: (event: StoredEvent) => {
-          console.log('SequelizeEventStore publish inside transaction', event)
+          // console.log('SequelizeEventStore publish inside transaction', event)
           eventsToEmit.push(event)
         },
       })
@@ -123,7 +123,7 @@ export abstract class BaseEventStore implements EventStore {
   }
 
   private _emitEvent(event: StoredEvent) {
-    console.log('Event: publish [' + event.type + ']')
+    console.log('Event: publish [' + event.type + ']', event)
     this.eventEmitter.emit(event.type, event)
   }
 

@@ -27,14 +27,6 @@ export class ProjectNotEligibleForCertificateError extends DomainError {
   }
 }
 
-const wait = (time: number) =>
-  ResultAsync.fromPromise(
-    new Promise((resolve) => {
-      setTimeout(resolve, time)
-    }),
-    () => new OtherError('blah')
-  )
-
 // Possible errors:
 // - Failing to get project information (from findByProjectId)
 // - Failing to generate PDF (from buildCertificate)
@@ -61,12 +53,17 @@ export const makeGenerateCertificate = (
 ) => {
   let project: Project
   let file: File
+  // console.log('generaticeCertificate called for project', projectId)
   return ResultAsync.fromPromise(
     deps.findProjectById(projectId),
     () => new InfraNotAvailableError()
   )
     .andThen((_project: Project | undefined) => {
       if (!_project) {
+        console.log(
+          'Error: generaticeCertificate could not find project',
+          projectId
+        )
         return err(new EntityNotFoundError())
       }
 
@@ -82,14 +79,18 @@ export const makeGenerateCertificate = (
       )
       // Make sure the project can have a certificate (notifiedOn, classe, periode)
       if (!certificateTemplate) {
+        console.log(
+          'Error: generaticeCertificate could not generate certificate for project because it is not eligible for a certificate.',
+          projectId
+        )
         return err(new ProjectNotEligibleForCertificateError())
       }
 
+      // console.log('generaticeCertificate building certificate', projectId)
       return deps.buildCertificate(certificateTemplate, project)
     })
     .andThen((fileStream: NodeJS.ReadableStream) => {
       // Save PDF File to storage
-
       return File.create({
         filename: makeCertificateFilename(project),
         forProject: projectId,
@@ -103,5 +104,11 @@ export const makeGenerateCertificate = (
         })
       })
     })
-    .map(() => file.id.toString())
+    .map(() => {
+      // console.log(
+      //   'generaticeCertificate done saving certificate file',
+      //   projectId
+      // )
+      return file.id.toString()
+    })
 }

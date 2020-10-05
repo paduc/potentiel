@@ -119,7 +119,7 @@ describe('handleProjectNotified', () => {
         expect(caughtEvent.payload).toEqual({
           projectId: fakePayload.projectId,
           garantiesFinancieresDueOn: moment(fakePayload.notifiedOn)
-            .add(fakeFamille.garantieFinanciereEnMois, 'months')
+            .add(2, 'months')
             .toDate()
             .getTime(),
         })

@@ -17,15 +17,15 @@ export const handleProjectCertificateGenerated = (
   async function callback(
     event: ProjectCertificateGenerated | ProjectCertificateGenerationFailed
   ) {
-    const transactionId = Math.floor(Math.random() * 1e3)
-    console.log('handleProjectCertificateGenerated', event, transactionId)
+    // const transactionId = Math.floor(Math.random() * 1e3)
+    // console.log('handleProjectCertificateGenerated', event)
     const {
       payload: { projectId, periodeId, appelOffreId, candidateEmail },
       requestId,
     } = event
 
     await eventStore.transaction(async ({ loadHistory, publish }) => {
-      console.log('starting transaction', transactionId)
+      // console.log('starting transaction', transactionId)
 
       // Check if the candidate has been notified for this periode
       const hasCandidateBeenNotifiedForPeriodeResult = await loadHistory({

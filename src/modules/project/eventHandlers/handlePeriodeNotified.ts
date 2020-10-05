@@ -20,18 +20,18 @@ export const handlePeriodeNotified = (
     )
 
     if (unnotifiedProjectIdsResult.isErr()) {
-      console.log(
-        'handlePeriodeNotified failed to getUnnotifiedProjectsForPeriode',
-        unnotifiedProjectIdsResult.error
-      )
+      // console.log(
+      //   'handlePeriodeNotified failed to getUnnotifiedProjectsForPeriode',
+      //   unnotifiedProjectIdsResult.error
+      // )
       return
     }
 
     const result = await eventStore.transaction(({ publish }) => {
-      console.log(
-        'publishing ProjectNotified events',
-        unnotifiedProjectIdsResult.value
-      )
+      // console.log(
+      //   'publishing ProjectNotified events',
+      //   unnotifiedProjectIdsResult.value
+      // )
       unnotifiedProjectIdsResult.value.forEach(
         ({ projectId, candidateEmail, familleId }) =>
           publish(
@@ -45,6 +45,7 @@ export const handlePeriodeNotified = (
                 notifiedOn,
               },
               requestId: event.requestId,
+              aggregateId: projectId,
             })
           )
       )

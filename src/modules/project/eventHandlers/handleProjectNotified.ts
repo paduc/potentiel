@@ -21,7 +21,7 @@ export const handleProjectNotified = (
   }
 ) => {
   eventStore.subscribe(ProjectNotified.type, async (event: ProjectNotified) => {
-    console.log('handleProjectNotified', event)
+    // console.log('handleProjectNotified', event)
     const { payload, requestId } = event
     const {
       projectId,
@@ -40,6 +40,7 @@ export const handleProjectNotified = (
           dcrDueOn: moment(notifiedOn).add(2, 'months').toDate().getTime(),
         },
         requestId,
+        aggregateId: projectId,
       })
     )
 
@@ -55,11 +56,12 @@ export const handleProjectNotified = (
           payload: {
             projectId,
             garantiesFinancieresDueOn: moment(notifiedOn)
-              .add(familleResult.value.garantieFinanciereEnMois, 'months')
+              .add(2, 'months')
               .toDate()
               .getTime(),
           },
           requestId,
+          aggregateId: projectId,
         })
       )
     }
@@ -92,6 +94,7 @@ export const handleProjectNotified = (
                 error: result.error.message,
               },
               requestId,
+              aggregateId: projectId,
             })
           )
         }
@@ -113,6 +116,7 @@ export const handleProjectNotified = (
             certificateFileId,
           },
           requestId,
+          aggregateId: projectId,
         })
       )
     }

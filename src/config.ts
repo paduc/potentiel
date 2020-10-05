@@ -1,5 +1,8 @@
 import { FileService, FileStorageService } from './modules/file'
-import { ShouldUserAccessProject } from './modules/authorization'
+import {
+  BaseShouldUserAccessProject,
+  ShouldUserAccessProject,
+} from './modules/authorization'
 import { userRepo, projectRepo, projectAdmissionKeyRepo } from './dataAccess'
 import { appelOffreRepo } from './dataAccess/inMemory'
 import {
@@ -44,7 +47,7 @@ const isDevEnv = process.env.NODE_ENV === 'development'
 const isStagingEnv = process.env.NODE_ENV === 'staging'
 const isProdEnv = process.env.NODE_ENV === 'production'
 
-const shouldUserAccessProject = new ShouldUserAccessProject(
+const shouldUserAccessProject = new BaseShouldUserAccessProject(
   userRepo,
   projectRepo.findById
 )
@@ -124,7 +127,7 @@ export const {
 
 export const eventStore = new InMemoryEventStore()
 
-const generateCertificate = makeGenerateCertificate({
+export const generateCertificate = makeGenerateCertificate({
   fileService,
   findProjectById: projectRepo.findById,
   saveProject: projectRepo.save,
