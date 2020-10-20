@@ -1,5 +1,3 @@
-export * from './CandidateNotificationForPeriodeFailed';
-export * from './CandidateNotifiedForPeriode';
 export * from './LegacyProjectEventSourced';
 export * from './LegacyProjectSourced';
 export * from './PeriodeNotified';
