@@ -8,6 +8,8 @@ import {
   PeriodeNotified,
   ProjectCertificateGenerated,
   ProjectCertificateGenerationFailed,
+  ProjectCertificateUpdated,
+  ProjectCertificateUpdateFailed,
   ProjectDCRDueDateSet,
   ProjectDCRRemoved,
   ProjectDCRSubmitted,
@@ -26,6 +28,8 @@ export type StoredEvent =
   | ProjectNotified
   | ProjectCertificateGenerated
   | ProjectCertificateGenerationFailed
+  | ProjectCertificateUpdated
+  | ProjectCertificateUpdateFailed
   | PeriodeNotified
   | CandidateNotificationForPeriodeFailed
   | CandidateNotifiedForPeriode

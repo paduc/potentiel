@@ -3,6 +3,8 @@ export * from './LegacyProjectSourced';
 export * from './PeriodeNotified';
 export * from './ProjectCertificateGenerated';
 export * from './ProjectCertificateGenerationFailed';
+export * from './ProjectCertificateUpdateFailed';
+export * from './ProjectCertificateUpdated';
 export * from './ProjectDCRDueDateSet';
 export * from './ProjectDCRRemoved';
 export * from './ProjectDCRSubmitted';
