@@ -168,7 +168,7 @@ export async function makeServer(port: number) {
     router.get(
       ROUTES.ADMIN_LIST_REQUESTS,
       ensureLoggedIn(),
-      ensureRole(['admin', 'dgec']),
+      ensureRole(['admin', 'dgec', 'dreal']),
       makeExpressCallback(getAdminRequestsPage)
     )
 

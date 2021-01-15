@@ -5,7 +5,7 @@ import { AdminListRequestsPage } from '../views/pages'
 import ROUTES from '../routes'
 
 const getAdminRequestsPage = async (request: HttpRequest) => {
-  if (!request.user || (request.user.role !== 'dgec' && request.user.role !== 'admin')) {
+  if (!request.user) {
     return Redirect(ROUTES.LOGIN)
   }
 
