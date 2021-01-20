@@ -1,17 +1,19 @@
 import dotenv from 'dotenv'
 import { credentialsRepo, initDatabase, userRepo } from '../src/dataAccess'
 import { makeCredentials, makeUser } from '../src/entities'
+import { logger } from '../src/core/utils/logger'
 dotenv.config()
 
 const [_, __, email, password, name] = process.argv
 
 if (!email || !password) {
-  console.log('email and password are mandatory')
-  console.log('ex: node createUser.js test@test.com test')
+  logger.error(
+    new Error('email and password are mandatory (ex: node createUser.js test@test.com test)')
+  )
   process.exit(1)
 }
 
-console.log('Creating user with email ', email, 'and password', password, 'and named', name)
+logger.info(`Creating user with email ${email} and password ${password} and named ${name}`)
 
 initDatabase()
   .then(() => {
@@ -22,7 +24,7 @@ initDatabase()
     })
 
     if (userResult.is_err()) {
-      console.log('Cannot create user', userResult.unwrap_err())
+      logger.error(userResult.unwrap_err())
       return process.exit(1)
     }
     const user = userResult.unwrap()
@@ -33,7 +35,7 @@ initDatabase()
       password,
     })
     if (credentialsResult.is_err()) {
-      console.log('Cannot create credentials', credentialsResult.unwrap_err())
+      logger.error(credentialsResult.unwrap_err())
       return process.exit(1)
     }
 
@@ -43,22 +45,19 @@ initDatabase()
   })
   .then(([userInsertion, credentialsInsertion]) => {
     if (userInsertion.is_err()) {
-      console.log('Oops User could not be inserted into DB', userInsertion.unwrap_err())
+      logger.error(userInsertion.unwrap_err())
       return process.exit(1)
     }
 
     if (credentialsInsertion.is_err()) {
-      console.log(
-        'Oops Credentials could not be inserted into DB',
-        credentialsInsertion.unwrap_err()
-      )
+      logger.error(credentialsInsertion.unwrap_err())
       return process.exit(1)
     }
 
-    console.log('User was successfuly inserted into db')
+    logger.info('User was successfuly inserted into db')
     process.exit(0)
   })
   .catch((err) => {
-    console.log('Caught error', err)
+    logger.error(err)
     process.exit(1)
   })

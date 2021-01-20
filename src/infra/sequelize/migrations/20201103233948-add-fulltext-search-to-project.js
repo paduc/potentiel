@@ -1,3 +1,5 @@
+const logger = require('../../core/utils/logger')
+
 module.exports = {
   up: (queryInterface) =>
     queryInterface.sequelize.transaction((t) =>
@@ -25,7 +27,7 @@ module.exports = {
             { transaction: t }
           )
         )
-        .catch(console.error)
+        .catch(logger.error)
     ),
 
   down: (queryInterface) =>

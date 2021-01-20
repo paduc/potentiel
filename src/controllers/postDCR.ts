@@ -7,6 +7,7 @@ import { Redirect, SystemError } from '../helpers/responses'
 import ROUTES from '../routes'
 import { HttpRequest } from '../types'
 import { addDCR } from '../useCases'
+import { logger } from '../core/utils/logger'
 
 const deleteFile = util.promisify(fs.unlink)
 
@@ -67,7 +68,7 @@ const postDCR = async (request: HttpRequest) => {
         success: 'Votre demande de raccordement a bien été enregistrée.',
       }),
     err: (e: Error) => {
-      console.log('postDCR error', e)
+      logger.error(e)
       return Redirect(ROUTES.PROJECT_DETAILS(projectId), {
         ..._.omit(data, 'projectId'),
         error: "Votre demande n'a pas pu être prise en compte: " + e.message,

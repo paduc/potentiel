@@ -1,17 +1,18 @@
 import { projectRepo, userRepo, credentialsRepo } from '../../dataAccess'
 import { Success, SystemError } from '../../helpers/responses'
 import { HttpRequest } from '../../types'
+import { logger } from '../../core/utils/logger'
 
 const checkUserAccessToProjectForTests = async (request: HttpRequest) => {
   const { email, nomProjet } = request.body
 
   if (!email) {
-    console.log('checkUserAccessToProjectForTests missing email')
+    logger.error(new Error('checkUserAccessToProjectForTests missing email'))
     return SystemError('missing email')
   }
 
   if (!nomProjet) {
-    console.log('checkUserAccessToProjectForTests missing nomProjet')
+    logger.error(new Error('checkUserAccessToProjectForTests missing nomProjet'))
     return SystemError('missing nomProjet')
   }
 

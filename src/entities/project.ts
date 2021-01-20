@@ -22,6 +22,7 @@ import { Famille } from './famille'
 import { CertificateTemplate } from './periode'
 
 import { territoireSchema } from './territoire'
+import { logger } from '../core/utils/logger'
 
 const baseProjectSchema = SchemaRecord({
   id: String,
@@ -236,17 +237,19 @@ const getCertificateIfProjectEligible = (
   ignoreNotifiedOn?: boolean
 ): CertificateTemplate | null => {
   if (!ignoreNotifiedOn && !project.notifiedOn) {
-    console.log('getCertificateIfProjectEligible failed on project notifiedOn')
+    logger.error(new Error('getCertificateIfProjectEligible failed on project notifiedOn'))
     return null
   }
 
   if (!project.appelOffre?.periode?.isNotifiedOnPotentiel) {
-    console.log('getCertificateIfProjectEligible failed on periode.isNotifiedOnPotentiel')
+    logger.error(
+      new Error('getCertificateIfProjectEligible failed on periode.isNotifiedOnPotentiel')
+    )
     return null
   }
 
   if (!project.appelOffre?.periode?.certificateTemplate) {
-    console.log('getCertificateIfProjectEligible failed on periode.certificateTemplate')
+    logger.error(new Error('getCertificateIfProjectEligible failed on periode.certificateTemplate'))
     return null
   }
 

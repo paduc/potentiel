@@ -1,3 +1,4 @@
+import { logger } from '../core/utils/logger'
 import { ProjectRepo } from '../dataAccess'
 import { applyProjectUpdate, Project, User } from '../entities'
 import { EventBus } from '../modules/eventStore'
@@ -38,7 +39,9 @@ export default function makeRemoveGarantiesFinancieres({
     const project = await findProjectById(projectId)
 
     if (!project) {
-      console.log('removeGarantiesFinancieres failed because project could not be found')
+      logger.error(
+        new Error('removeGarantiesFinancieres failed because project could not be found')
+      )
       return ErrorResult(UNAUTHORIZED)
     }
 
@@ -62,8 +65,9 @@ export default function makeRemoveGarantiesFinancieres({
     })
 
     if (!updatedProject) {
-      // OOPS
-      console.log('removeGarantiesFinancieres use-case: applyProjectUpdate returned null')
+      logger.error(
+        new Error('removeGarantiesFinancieres use-case: applyProjectUpdate returned null')
+      )
 
       return ErrorResult(SYSTEM_ERROR)
     }

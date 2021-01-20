@@ -6,6 +6,7 @@ import routes from '../../src/routes'
 import { testId } from '../../src/helpers/testId'
 
 import makeRoute from './makeRoute'
+import { logger } from '../../src/core/utils/logger'
 
 setDefaultTimeout(30 * 1000)
 
@@ -15,7 +16,7 @@ export class World {
 
   public page: Page
   constructor() {
-    // console.log('World constructor called')
+    // logger.info('World constructor called')
   }
 
   async newPage() {
@@ -31,19 +32,19 @@ export class World {
   }
 
   async logout() {
-    // console.log('Calling logout')
+    // logger.info('Calling logout')
     await this.navigateTo(makeRoute(routes.LOGOUT_ACTION))
   }
 
   async loginAs({ email, password }) {
-    // console.log('Going to login page')
+    // logger.info('Going to login page')
     await this.navigateTo(makeRoute(routes.LOGIN))
 
     await this.page.type(testId('login-email'), email)
     await this.page.type(testId('login-password'), password)
 
     await this.page.click(testId('login-submitButton'))
-    // console.log('Login done')
+    // logger.info('Login done')
   }
 }
 

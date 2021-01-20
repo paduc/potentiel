@@ -1,3 +1,4 @@
+import { logger } from '../core/utils/logger'
 import { CredentialsRepo, PasswordRetrievalRepo } from '../dataAccess'
 import { makeCredentials, PasswordRetrieval } from '../entities'
 import { ErrorResult, Ok, ResultAsync } from '../types'
@@ -45,8 +46,10 @@ export default function makeResetPassword({
     const credentialsResult = await credentialsRepo.findByEmail(passwordRetrieval.email)
 
     if (credentialsResult.is_none()) {
-      console.log(
-        'resetPassword use-case called, resetCode is linked to email for which we have no credentials'
+      logger.error(
+        new Error(
+          'resetPassword use-case called, resetCode is linked to email for which we have no credentials'
+        )
       )
       return ErrorResult(ILLEGAL_RESET_CODE_ERROR)
     }
@@ -61,10 +64,7 @@ export default function makeResetPassword({
     })
 
     if (newCredentialsResult.is_err()) {
-      console.log(
-        'resetPassword use-case called, failed to create new credentials with makeCredentials',
-        newCredentialsResult.unwrap_err()
-      )
+      logger.error(newCredentialsResult.unwrap_err())
       return ErrorResult(SYSTEM_ERROR)
     }
 
@@ -73,10 +73,7 @@ export default function makeResetPassword({
     const insertionResult = await credentialsRepo.update(credentials.id, newCredentials.hash)
 
     if (insertionResult.is_err()) {
-      console.log(
-        'resetPassword use-case called, failed to insert new credentials',
-        insertionResult.unwrap_err()
-      )
+      logger.error(insertionResult.unwrap_err())
       return ErrorResult(SYSTEM_ERROR)
     }
 

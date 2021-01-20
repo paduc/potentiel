@@ -8,6 +8,7 @@ import { ADMIN, PORTEUR_PROJET } from '../../src/__tests__/fixtures/testCredenti
 
 import fs from 'fs'
 import util from 'util'
+import { logger } from '../../src/core/utils/logger'
 
 const deleteFile = util.promisify(fs.unlink)
 
@@ -23,21 +24,21 @@ const puppeteerOpts = HEADLESS
     }
 
 BeforeAll(async function () {
-  console.log('BeforeAll called')
+  logger.info('BeforeAll called')
 
-  console.log('Launching web server')
+  logger.info('Launching web server')
   global['__SERVER__'] = await makeServer(PORT)
-  console.log(`Server is running on ${PORT}...`)
+  logger.info(`Server is running on ${PORT}...`)
 
-  console.log('Launching puppeteer browser')
+  logger.info('Launching puppeteer browser')
   global['__BROWSER__'] = await puppeteer.launch(puppeteerOpts)
-  console.log('launched browser !')
+  logger.info('launched browser !')
 
-  console.log('BeforeAll done')
+  logger.info('BeforeAll done')
 })
 
 AfterAll(async function () {
-  console.log('AfterAll called')
+  logger.info('AfterAll called')
   global['__SERVER__'].close()
 
   global['__BROWSER__'].close()
@@ -45,5 +46,5 @@ AfterAll(async function () {
   // Reset the database
   // await deleteFile('.db/test.sqlite')
 
-  console.log('AfterAll done')
+  logger.info('AfterAll done')
 })

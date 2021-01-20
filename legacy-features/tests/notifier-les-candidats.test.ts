@@ -7,6 +7,7 @@ import { testId } from '../../src/helpers/testId'
 import createUser from '../setup/createUser'
 import makeRoute from '../setup/makeRoute'
 import { PORTEUR_PROJET } from '../../src/__tests__/fixtures/testCredentials'
+import { logger } from '../../src/core/utils/logger'
 
 Given("un porteur de projet inscrit avec l'adresse {string}", async function (email) {
   this.porteurProjet = { ...PORTEUR_PROJET, email }
@@ -22,7 +23,7 @@ When('je clique sur le bouton pour notifier les candidats', async function () {
 Then('une notification est générée pour chaque projet', async function () {
   await this.page.waitForSelector(testId('item-action'))
 
-  // console.log("J'ai trouvé le item-action")
+  // logger.info("J'ai trouvé le item-action")
 
   const projectActions = await this.page.$$eval(testId('item-action'), (actionElements) =>
     actionElements.map((actionElement) => actionElement.getAttribute('href'))
@@ -43,7 +44,7 @@ Then('le porteur de projet inscrit voit ses nouveaux projets dans sa liste', asy
   // check if the imported projects are there (use World.importedProjects)
   const userProjects = this.projects.filter((project) => project.email === this.porteurProjet.email)
 
-  // console.log('USER LIST PROJECTS contents', await this.page.content())
+  // logger.info('USER LIST PROJECTS contents', await this.page.content())
 
   await this.page.waitForSelector(testId('projectList-item-nomProjet'))
 
@@ -52,7 +53,7 @@ Then('le porteur de projet inscrit voit ses nouveaux projets dans sa liste', asy
     (actionElements) => actionElements.map((actionElement) => actionElement.innerText)
   )
 
-  // console.log('Found projectsInList', projectsInList)
+  // logger.info('Found projectsInList', projectsInList)
 
   expect(projectsInList).to.have.lengthOf(userProjects.length)
 

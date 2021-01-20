@@ -1,3 +1,4 @@
+import { logger } from '../core/utils/logger'
 import { CredentialsRepo, ProjectAdmissionKeyRepo, ProjectRepo, UserRepo } from '../dataAccess'
 import { makeProjectAdmissionKey, Project, User } from '../entities'
 import { NotificationService } from '../modules/notification'
@@ -67,9 +68,10 @@ export default function makeInviteUserToProject({
     ).filter(Boolean) as Project[]
 
     if (!projects.length) {
-      console.log(
-        'inviteUserToProject use-case failed to find any of the projects requested',
-        projectIds
+      logger.error(
+        new Error(
+          `inviteUserToProject use-case failed to find any of the projects requested. Ids: ${projectIds}`
+        )
       )
       return ErrorResult(SYSTEM_ERROR)
     }
@@ -82,7 +84,10 @@ export default function makeInviteUserToProject({
       )
 
       if (results.some((res) => res.is_err())) {
-        console.log(
+        logger.error(
+          new Error('inviteUserToProject use-case some calls to userRepo.addProject failed')
+        )
+        logger.info(
           'inviteUserToProject use-case some calls to userRepo.addProject failed',
           results.filter((res) => res.is_err()).map((res) => res.unwrap_err())
         )
@@ -129,10 +134,7 @@ export default function makeInviteUserToProject({
         })
 
         if (projectAdmissionKeyResult.is_err()) {
-          console.log(
-            'inviteUserToProject use-case failed on call to makeProjectAdmissionKey',
-            projectAdmissionKeyResult.unwrap_err()
-          )
+          logger.error(projectAdmissionKeyResult.unwrap_err())
         }
 
         return projectAdmissionKeyResult
@@ -143,7 +145,10 @@ export default function makeInviteUserToProject({
     const saveResults = await Promise.all(projectAdmissionKeys.map(projectAdmissionKeyRepo.save))
 
     if (saveResults.some((res) => res.is_err())) {
-      console.log(
+      logger.error(
+        new Error('inviteUserToProject use-case failed some calls to projectAdmissionKeyRepo.save')
+      )
+      logger.info(
         'inviteUserToProject use-case failed some calls to projectAdmissionKeyRepo.save',
         saveResults.filter((res) => res.is_err()).map((res) => res.unwrap_err())
       )

@@ -1,12 +1,13 @@
 import { projectRepo } from '../../dataAccess'
 import { Success, SystemError } from '../../helpers/responses'
 import { HttpRequest } from '../../types'
+import { logger } from '../../core/utils/logger'
 
 const getProjectIdForTests = async (request: HttpRequest) => {
   const { nomProjet } = request.query
 
   if (!nomProjet) {
-    console.log('getProjectIdForTests missing nomProjet')
+    logger.error(new Error('getProjectIdForTests missing nomProjet'))
     return SystemError('missing nomProjet')
   }
 

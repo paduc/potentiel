@@ -3,10 +3,11 @@ import testUsers from '../.test-users'
 import { credentialsRepo, initDatabase, userRepo } from '../src/dataAccess'
 import { makeCredentials, makeUser } from '../src/entities'
 import { asLiteral } from '../src/helpers/asLiteral'
+import { logger } from '../src/core/utils/logger'
 dotenv.config()
 
 if (!testUsers) {
-  console.log("Can't find .test-users.json file")
+  logger.info("Can't find .test-users.json file")
   process.exit(1)
 }
 
@@ -21,7 +22,7 @@ initDatabase()
         })
 
         if (userResult.is_err()) {
-          console.log('Cannot create user', userResult.unwrap_err())
+          logger.error(userResult.unwrap_err())
           return
         }
         const user = userResult.unwrap()
@@ -32,7 +33,7 @@ initDatabase()
           password,
         })
         if (credentialsResult.is_err()) {
-          console.log('Cannot create credentials', credentialsResult.unwrap_err())
+          logger.error(credentialsResult.unwrap_err())
           return
         }
 
@@ -43,10 +44,10 @@ initDatabase()
     )
   })
   .then(() => {
-    console.log('Users were successfuly inserted into db')
+    logger.info('Users were successfuly inserted into db')
     process.exit(0)
   })
   .catch((err) => {
-    console.log('Caught error', err)
+    logger.error(err)
     process.exit(1)
   })

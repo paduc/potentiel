@@ -7,11 +7,12 @@ import { Redirect, SystemError } from '../helpers/responses'
 import ROUTES from '../routes'
 import { HttpRequest } from '../types'
 import { addGarantiesFinancieres } from '../useCases'
+import { logger } from '../core/utils/logger'
 
 const deleteFile = util.promisify(fs.unlink)
 
 const postGarantiesFinancieres = async (request: HttpRequest) => {
-  console.log('Call to postGarantiesFinancieres received', request.body, request.file)
+  logger.info('Call to postGarantiesFinancieres received', request.body, request.file)
 
   if (!request.user) {
     return SystemError('User must be logged in')
@@ -61,11 +62,11 @@ const postGarantiesFinancieres = async (request: HttpRequest) => {
     user: request.user,
   })
 
-  console.log('postGarantiesFinancieres addGarantiesFinancieres returned')
+  logger.info('postGarantiesFinancieres addGarantiesFinancieres returned')
 
   await deleteFile(request.file.path)
 
-  console.log('postGarantiesFinancieres temp file deleted')
+  logger.info('postGarantiesFinancieres temp file deleted')
 
   return result.match({
     ok: () =>
@@ -73,7 +74,7 @@ const postGarantiesFinancieres = async (request: HttpRequest) => {
         success: 'Votre constitution de garanties financières a bien été enregistrée.',
       }),
     err: (e: Error) => {
-      console.log('postGarantiesFinancieres error', e)
+      logger.error(e)
       return Redirect(ROUTES.PROJECT_DETAILS(projectId), {
         ..._.omit(data, 'projectId'),
         error: "Votre demande n'a pas pu être prise en compte: " + e.message,

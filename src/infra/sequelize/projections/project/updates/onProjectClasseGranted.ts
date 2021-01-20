@@ -1,3 +1,4 @@
+import { logger } from '../../../../../core/utils/logger'
 import { ProjectClasseGranted } from '../../../../../modules/project/events'
 
 export const onProjectClasseGranted = (models) => async (event: ProjectClasseGranted) => {
@@ -5,9 +6,10 @@ export const onProjectClasseGranted = (models) => async (event: ProjectClasseGra
   const projectInstance = await ProjectModel.findByPk(event.payload.projectId)
 
   if (!projectInstance) {
-    console.log(
-      'Error: onProjectClasseGranted projection failed to retrieve project from db',
-      event
+    logger.error(
+      new Error(
+        `Error: onProjectClasseGranted projection failed to retrieve project from db ${event}`
+      )
     )
     return
   }
@@ -17,10 +19,7 @@ export const onProjectClasseGranted = (models) => async (event: ProjectClasseGra
   try {
     await projectInstance.save()
   } catch (e) {
-    console.error(
-      'Error: onProjectClasseGranted projection failed to update project',
-      event,
-      e.message
-    )
+    logger.error(e)
+    logger.info('Error: onProjectClasseGranted projection failed to update project', event)
   }
 }

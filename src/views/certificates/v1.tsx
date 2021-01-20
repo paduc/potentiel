@@ -2,7 +2,7 @@
 import ReactPDF, { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer'
 import dotenv from 'dotenv'
 import React from 'react'
-import { errAsync, Queue, ResultAsync } from '../../core/utils'
+import { errAsync, logger, Queue, ResultAsync } from '../../core/utils'
 import { formatDate } from '../../helpers/formatDate'
 import { ProjectDataForCertificate } from '../../modules/project/dtos'
 import { IllegalProjectDataError } from '../../modules/project/errors'
@@ -291,13 +291,13 @@ const Laureat = (project: ProjectDataForCertificate) => {
 }
 
 const getNoteThreshold = (project: ProjectDataForCertificate) => {
-
   const periode = project.appelOffre.periode
 
   if (!periode.noteThresholdByFamily) {
-    console.log(
-      'candidateCertificate: looking for noteThresholdByFamily for a period that has none',
-      periode.id
+    logger.error(
+      new Error(
+        `candidateCertificate: looking for noteThresholdByFamily for a period that has none. Periode Id : ${periode.id}`
+      )
     )
     return 'N/A'
   }
@@ -308,14 +308,10 @@ const getNoteThreshold = (project: ProjectDataForCertificate) => {
     )?.noteThreshold
 
     if (!note) {
-      console.log(
-        'candidateCertificate: looking for noteThreshold for periode',
-        periode.id,
-        'famille',
-        project.familleId,
-        'and territoire',
-        project.territoireProjet,
-        ' but could not find it'
+      logger.error(
+        new Error(
+          `candidateCertificate: looking for noteThreshold for periode: ${periode.id}, famille: ${project.familleId} and territoire: ${project.territoireProjet} but could not find it`
+        )
       )
       return 'N/A'
     }
@@ -327,12 +323,10 @@ const getNoteThreshold = (project: ProjectDataForCertificate) => {
     ?.noteThreshold
 
   if (!note) {
-    console.log(
-      'candidateCertificate: looking for noteThreshold for periode',
-      periode.id,
-      'and famille',
-      project.familleId,
-      ' but could not find it'
+    logger.error(
+      new Error(
+        `candidateCertificate: looking for noteThreshold for periode: ${periode.id} and famille: ${project.familleId} but could not find it`
+      )
     )
     return 'N/A'
   }
@@ -407,13 +401,7 @@ interface CertificateProps {
   body: JSX.Element
   footnotes?: JSX.Element
 }
-const Certificate = ({
-  project,
-  objet,
-  body,
-  footnotes,
-}: CertificateProps) => {
-
+const Certificate = ({ project, objet, body, footnotes }: CertificateProps) => {
   const { appelOffre } = project
   const { periode } = appelOffre || {}
 
@@ -579,12 +567,16 @@ const Certificate = ({
 const queue = new Queue()
 
 /* global NodeJS */
-const makeCertificate = (project: ProjectDataForCertificate): ResultAsync<NodeJS.ReadableStream, IllegalProjectDataError | OtherError> => {
+const makeCertificate = (
+  project: ProjectDataForCertificate
+): ResultAsync<NodeJS.ReadableStream, IllegalProjectDataError | OtherError> => {
   const { appelOffre } = project
   const { periode } = appelOffre || {}
 
   if (!appelOffre || !periode) {
-    return errAsync(new IllegalProjectDataError({ appelOffre: 'appelOffre et/ou periode manquantes'}))
+    return errAsync(
+      new IllegalProjectDataError({ appelOffre: 'appelOffre et/ou periode manquantes' })
+    )
   }
 
   let content
@@ -597,7 +589,7 @@ const makeCertificate = (project: ProjectDataForCertificate): ResultAsync<NodeJS
 
   const ticket = queue.push(() => ReactPDF.renderToStream(<Certificate {...content} />))
 
-  return ResultAsync.fromPromise(ticket, (e: any) =>  new OtherError(e.message) )
+  return ResultAsync.fromPromise(ticket, (e: any) => new OtherError(e.message))
 }
 
 export { makeCertificate }

@@ -1,3 +1,4 @@
+import { logger } from '../core/utils/logger'
 import { ProjectAdmissionKeyRepo } from '../dataAccess'
 import { AppelOffre, makeProjectAdmissionKey, Periode, ProjectAdmissionKey } from '../entities'
 import { NotificationService } from '../modules/notification'
@@ -102,10 +103,10 @@ export default function makeRelanceInvitations({
         })
 
         if (newProjectAdmissionKeyResult.is_err()) {
-          // OOPS
-          console.log(
-            'relanceInvitation use-case: error when calling makeProjectAdmissionKey with',
-            email
+          logger.error(
+            new Error(
+              `relanceInvitation use-case: error when calling makeProjectAdmissionKey with email : ${email}`
+            )
           )
           return false
         }
@@ -115,10 +116,10 @@ export default function makeRelanceInvitations({
         const insertionResult = await projectAdmissionKeyRepo.save(newProjectAdmissionKey)
 
         if (insertionResult.is_err()) {
-          // OOPS
-          console.log(
-            'relanceInvitation use-case: error when calling projectAdmissionKeyRepo.save with',
-            email
+          logger.error(
+            new Error(
+              `relanceInvitation use-case: error when calling projectAdmissionKeyRepo.save with email: ${email}`
+            )
           )
           return false
         }

@@ -1,3 +1,4 @@
+import { logger } from '../core/utils/logger'
 import { CredentialsRepo, UserRepo } from '../dataAccess'
 import { makeCredentials, User } from '../entities'
 import { ErrorResult, Ok, ResultAsync } from '../types'
@@ -33,10 +34,7 @@ export default function makeLogin({ credentialsRepo, userRepo }: MakeLoginProps)
     })
 
     if (providedCredentialsResult.is_err()) {
-      console.log(
-        'login use-case: makeCredentials est en erreur',
-        providedCredentialsResult.unwrap_err()
-      )
+      logger.error(providedCredentialsResult.unwrap_err())
       return ErrorResult(ERREUR_GRAVE)
     }
 
@@ -49,8 +47,10 @@ export default function makeLogin({ credentialsRepo, userRepo }: MakeLoginProps)
     const userResult = await userRepo.findById(credentials.unwrap().userId)
 
     if (userResult.is_none()) {
-      console.log(
-        'login use-case: user avec le userId contenu dans les credentials est introuvable'
+      logger.error(
+        new Error(
+          'login use-case: user avec le userId contenu dans les credentials est introuvable'
+        )
       )
       return ErrorResult(ERREUR_GRAVE)
     }

@@ -2,6 +2,7 @@ import { NotFoundError, SuccessFileStream, Redirect, SystemError } from '../help
 import { HttpRequest } from '../types'
 import { loadFileForUser } from '../config'
 import ROUTES from '../routes'
+import { logger } from '../core/utils/logger'
 
 const getProjectFile = async (request: HttpRequest) => {
   try {
@@ -19,7 +20,7 @@ const getProjectFile = async (request: HttpRequest) => {
 
     return SuccessFileStream(result.value.contents)
   } catch (error) {
-    console.log('getProjectFile error', error)
+    logger.error(error)
     return NotFoundError('Fichier introuvable.')
   }
 }

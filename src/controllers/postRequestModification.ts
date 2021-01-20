@@ -4,6 +4,7 @@ import { HttpRequest } from '../types'
 import ROUTES from '../routes'
 import _ from 'lodash'
 import moment from 'moment'
+import { logger } from '../core/utils/logger'
 
 import fs from 'fs'
 import util from 'util'
@@ -72,7 +73,7 @@ const postRequestModification = async (request: HttpRequest) => {
   try {
     data.puissance = data.puissance && Number(data.puissance)
   } catch (error) {
-    console.log('Could not convert puissance to Number')
+    logger.error(new Error('Could not convert puissance to Number'))
     const { projectId, type } = data
     return Redirect(returnRoute(type, projectId), {
       error: 'Erreur: la puissance doit être un nombre',
@@ -83,7 +84,7 @@ const postRequestModification = async (request: HttpRequest) => {
   try {
     data.evaluationCarbone = data.evaluationCarbone && Number(data.evaluationCarbone)
   } catch (error) {
-    console.log('Could not convert evaluationCarbone to Number')
+    logger.error(new Error('Could not convert evaluationCarbone to Number'))
     const { projectId, type } = data
     return Redirect(returnRoute(type, projectId), {
       error: "Erreur: l'evaluationCarbone doit être un nombre",
@@ -98,7 +99,7 @@ const postRequestModification = async (request: HttpRequest) => {
       data.delayedServiceDate = delayedServiceDate.toDate().getTime()
     }
   } catch (error) {
-    console.log('Could not convert delayedServiceDate to date')
+    logger.error(new Error('Could not convert delayedServiceDate to date'))
     const { projectId, type } = data
     return Redirect(returnRoute(type, projectId), {
       error: "Erreur: la date envoyée n'est pas au bon format (JJ/MM/AAAA)",
@@ -137,10 +138,10 @@ const postRequestModification = async (request: HttpRequest) => {
         success: 'Votre demande a bien été prise en compte.',
       }),
     err: (e: Error) => {
-      console.log('postRequestModification error', e)
+      logger.error(e)
       const { projectId, type } = data
       const redirectRoute = returnRoute(type, projectId)
-      console.log('redirecting to ', redirectRoute)
+      logger.info(`redirecting to ${redirectRoute}`)
       return Redirect(redirectRoute, {
         ..._.omit(data, 'projectId'),
         error: "Votre demande n'a pas pu être prise en compte: " + e.message,

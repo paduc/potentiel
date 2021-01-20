@@ -2,6 +2,7 @@ require('dotenv').config()
 require('pg').defaults.parseInt8 = true
 const chalk = require('chalk')
 const Sequelize = require('sequelize')
+const logger = require('./core/utils/logger')
 
 const {
   POSTGRESQL_ADDON_HOST,
@@ -40,7 +41,7 @@ if (NODE_ENV === 'test') {
 const sequelizeInstance = new Sequelize(databaseOptions)
 
 sequelizeInstance.authenticate().catch((error) => {
-  console.error(chalk.red`❌ There was an error while trying to connect to the database > ${error}`)
+  logger.error(error)
   throw error
 })
 

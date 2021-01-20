@@ -1,4 +1,4 @@
-import { err, ok, Result } from '../../../core/utils'
+import { err, logger, ok, Result } from '../../../core/utils'
 import { makeProjectIdentifier } from '../../../entities'
 import { IncompleteDataError } from '../../shared'
 import { ProjectDataForCertificate } from '../dtos'
@@ -10,8 +10,8 @@ export const toProjectDataForCertificate = (
   const { data, appelOffre } = props
 
   if (!data) {
-    console.error(
-      'toProjectDataForCertificate failed to create DTO because project has no data prop'
+    logger.error(
+      new Error('toProjectDataForCertificate failed to create DTO because project has no data prop')
     )
     return err(new IncompleteDataError())
   }

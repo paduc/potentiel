@@ -1,12 +1,13 @@
 import { Success, SystemError } from '../../helpers/responses'
 import { HttpRequest } from '../../types'
 import { createUser } from './helpers/createUser'
+import { logger } from '../../core/utils/logger'
 
 const createUserWithEmailForTests = async (request: HttpRequest) => {
   const { email } = request.body
 
   if (!email) {
-    console.log('createUserWithEmailForTests missing email')
+    logger.error(new Error('createUserWithEmailForTests missing email'))
     return SystemError('missing email')
   }
 

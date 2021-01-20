@@ -15,6 +15,8 @@ import makeRoute from '../setup/makeRoute'
 import createUser from '../setup/createUser'
 import project from '../../src/entities/project'
 
+import { logger } from '../../src/core/utils/logger'
+
 Before(async function () {
   await this.newPage()
 })
@@ -53,7 +55,7 @@ async function addProjectsFromDataTable(dataTable) {
       .map(makeProject)
       .map((item) => {
         if (item.is_err()) {
-          console.log('Found error in makeProject', item.unwrap_err())
+          logger.error(item.unwrap_err())
         }
         return item
       })
@@ -81,12 +83,12 @@ Given('mon compte est lié aux projets suivants', async function (dataTable) {
   )
 
   const allProjects = await projectRepo.findAll()
-  console.log('All projects', allProjects)
-  console.log('this.userId', this.userId)
+  logger.info('All projects', allProjects)
+  logger.info('this.userId', this.userId)
 
   // Make sure they are linked properly
   const userProjects = await projectRepo.findByUser(this.userId)
-  console.log('userProjects', userProjects)
+  logger.info('userProjects', userProjects)
   expect(userProjects).to.have.lengthOf(this.projects.length)
 })
 
@@ -114,7 +116,7 @@ Then('me notifie la réussite par {string}', async function (successMessage) {
 
   expect(successElement).to.not.be.null
 
-  // console.log('successElement', successElement)
+  // logger.info('successElement', successElement)
 
   const successText = await this.page.evaluate((element) => element.textContent, successElement)
   expect(successText).to.equal(successMessage)
@@ -126,7 +128,7 @@ Then("me notifie l'échec par {string}", async function (errorMessage) {
 
   expect(errorElement).to.not.be.null
 
-  // console.log('errorElement', errorElement)
+  // logger.info('errorElement', errorElement)
 
   const errorText = await this.page.evaluate((element) => element.textContent, errorElement)
   expect(errorText).to.equal(errorMessage)

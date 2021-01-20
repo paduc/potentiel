@@ -6,6 +6,7 @@ import getDepartementRegionFromCodePostal from '../helpers/getDepartementRegionF
 import moment from 'moment'
 import { EventBus } from '../modules/eventStore'
 import { ProjectImported, ProjectReimported } from '../modules/project/events'
+import { logger } from '../core/utils/logger'
 
 interface MakeUseCaseProps {
   eventBus: EventBus
@@ -112,7 +113,7 @@ export default function makeImportProjects({
   }: CallUseCaseProps): ResultAsync<ImportReturnType> {
     // Check if there is at least one line to insert
     if (!lines || !lines.length) {
-      console.log('importProjects use-case: missing lines', lines)
+      logger.error(new Error(`importProjects use-case: missing lines: ${lines}`))
       return ErrorResult(ERREUR_AUCUNE_LIGNE)
     }
 
@@ -129,7 +130,7 @@ export default function makeImportProjects({
         const appelOffre = appelsOffre.find((appelOffre) => appelOffre.id === appelOffreId)
 
         if (!appelOffreId || !appelOffre) {
-          console.log('Appel offre introuvable', appelOffreId)
+          logger.error(new Error(`Appel offre introuvable. Id : ${appelOffreId}`))
           return makeErrorForLine(
             new Error("Appel d'offre introuvable " + appelOffreId),
             lineIndex,
@@ -142,9 +143,9 @@ export default function makeImportProjects({
         const periode = appelOffre.periodes.find((periode) => periode.id === periodeId)
 
         if (!periodeId || !periode) {
-          console.log(
+          logger.error(new Error(`Periode introuvable. Id: ${periodeId}`))
+          logger.info(
             'Periode introuvable',
-            periodeId,
             appelOffre.periodes.map((item) => item.id)
           )
           return makeErrorForLine(new Error('Période introuvable'), lineIndex, currentResults)
@@ -310,8 +311,10 @@ export default function makeImportProjects({
           const newProjectRes = makeProject(newProject as Project)
 
           if (newProjectRes.is_err()) {
-            console.log(
-              'importProject use-case failed when calling makeProject on a newly imported project'
+            logger.error(
+              new Error(
+                'importProject use-case failed when calling makeProject on a newly imported project'
+              )
             )
             return ErrorResult<Project>(ERREUR_INSERTION)
           }
@@ -325,8 +328,10 @@ export default function makeImportProjects({
           })
 
           if (!newlyImportedProject) {
-            console.log(
-              'importProject use-case failed when calling applyProjectUpdate on a newly imported project'
+            logger.error(
+              new Error(
+                'importProject use-case failed when calling applyProjectUpdate on a newly imported project'
+              )
             )
             return ErrorResult<Project>(ERREUR_INSERTION)
           }
@@ -355,7 +360,8 @@ export default function makeImportProjects({
     )
 
     if (insertions.some((project) => project.is_err())) {
-      console.log(
+      logger.error(new Error('importProjects use-case: some insertions have errors'))
+      logger.info(
         'importProjects use-case: some insertions have errors',
         insertions.filter((item) => item.is_err()).map((item) => item.unwrap_err())
       )
