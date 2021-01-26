@@ -10,6 +10,8 @@ if (!testUsers) {
   process.exit(1)
 }
 
+// test change
+
 initDatabase()
   .then(() => {
     return Promise.all(
