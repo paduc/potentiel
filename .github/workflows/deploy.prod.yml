@@ -21,8 +21,6 @@ jobs:
           # It is required to have write rights when increasing version number
           token: ${{ secrets.SPECIAL_GH_ACTIONS_TOKEN }}
 
-      - run: git fetch --prune --unshallow
-
       - name: Increase version number
         uses: 'phips28/gh-action-bump-version@master'
         env:
@@ -32,10 +30,4 @@ jobs:
           minor-wording: ':star2:,:revert:'
           major-wording: 'BREAKING'
 
-      - name: Deploy to Clever Cloud
-        uses: 47ng/actions-clever-cloud@v1
-        with:
-          appID: app_01c01a7d-783f-42a6-8d10-db9167ae056b
-        env:
-          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
-          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+      - run: echo "Should be deploying now"
